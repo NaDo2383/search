@@ -1,23 +1,84 @@
-import logo from './logo.svg';
-import './App.css';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import "./App.css";
 
 function App() {
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [selectedData, setSelectedData] = useState([]);
+  const [show, setShow] = useState(true);
+
+  useEffect(() => {
+    axios
+      .get("https://restcountries.com/v3.1/all")
+      .then((res) => {
+        let namesArr = [];
+        res.data.map((country) => {
+          namesArr.push(country.name.common);
+        });
+        setData(namesArr);
+        setFilteredData(namesArr);
+      })
+      .catch((err) => {
+        alert(err);
+      });
+  }, []);
+
+  function clickHandler(e) {
+    if (selectedData.includes(e.target.value)) {
+      alert("tanii songoson uls bn");
+    } else {
+      let newArr = [...selectedData];
+      setSelectedData(newArr);
+    }
+  }
+
+  function removeItem(para) {
+    let newArr = [...selectedData];
+    newArr.splice(newArr.indexOf(para), 1);
+    setSelectedData(newArr);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div
+      onClick={() => {
+        setShow(!show);
+      }}
+    >
+      <div onClick={(e) => e.stopPropagation()}>
+        <div>
+          <div>
+            {selectedData.map((e) => {
+              return (
+                <div>
+                  {e}
+                  <div onClick={() => removeItem(e)}>x</div>
+                </div>
+              );
+            })}
+          </div>
+          <input
+            type={"search"}
+            onFocus={() => {
+              setShow(false);
+            }}
+          />
+        </div>
+        <select
+          type="search"
+          multiple
+          name="test"
+          className={show ? "displayNone" : ""}
         >
-          Learn React
-        </a>
-      </header>
+          {filteredData.map((data, index) => {
+            return (
+              <option value={data} onClick={clickHandler}>
+                {index + 1}.{data}
+              </option>
+            );
+          })}
+        </select>
+      </div>
     </div>
   );
 }
